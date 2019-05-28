@@ -1,0 +1,27 @@
+{
+    "name": "rikudou/redis-helper",
+    "description": "Wrapper around Redis class (from ext-redis)",
+    "type": "library",
+    "require": {
+        "ext-redis": "*"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.15"
+    },
+    "license": "WTFPL",
+    "authors": [
+        {
+            "name": "Dominik Chrastecky",
+            "email": "dominik@chrastecky.cz"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Rikudou\\RedisHelper\\": "src/"
+        }
+    },
+    "scripts": {
+        "fixer": "php-cs-fixer fix src --verbose"
+    }
+}
