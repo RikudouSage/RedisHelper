@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use Redis;
 use Throwable;
 
-class RedisInvalidTypeException extends InvalidArgumentException
+final class RedisInvalidTypeException extends InvalidArgumentException
 {
     /**
      * RedisInvalidTypeException constructor.

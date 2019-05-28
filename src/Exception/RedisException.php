@@ -4,6 +4,6 @@ namespace Rikudou\RedisHelper\Exception;
 
 use RuntimeException;
 
-class RedisException extends RuntimeException
+final class RedisException extends RuntimeException
 {
 }

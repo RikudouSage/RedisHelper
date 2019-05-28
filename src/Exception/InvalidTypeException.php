@@ -4,6 +4,6 @@ namespace Rikudou\RedisHelper\Exception;
 
 use RuntimeException;
 
-class InvalidTypeException extends RuntimeException
+final class InvalidTypeException extends RuntimeException
 {
 }

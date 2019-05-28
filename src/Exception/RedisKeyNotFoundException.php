@@ -5,7 +5,7 @@ namespace Rikudou\RedisHelper\Exception;
 use RuntimeException;
 use Throwable;
 
-class RedisKeyNotFoundException extends RuntimeException
+final class RedisKeyNotFoundException extends RuntimeException
 {
     public function __construct(string $key, Throwable $previous = null)
     {

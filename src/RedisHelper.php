@@ -9,7 +9,7 @@ use Rikudou\RedisHelper\Exception\RedisException;
 use Rikudou\RedisHelper\Exception\RedisInvalidTypeException;
 use Rikudou\RedisHelper\Exception\RedisKeyNotFoundException;
 
-class RedisHelper
+final class RedisHelper
 {
     /**
      * @var Redis
