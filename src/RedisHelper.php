@@ -16,16 +16,35 @@ final class RedisHelper
      */
     private $redis;
 
+    /**
+     * The Redis instance should already be connected and ready to work
+     *
+     * @param Redis $redis
+     */
     public function __construct(Redis $redis)
     {
         $this->redis = $redis;
     }
 
+    /**
+     * Checks whether the given key exists
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
     public function exists(string $key): bool
     {
         return !!$this->redis->exists($key);
     }
 
+    /**
+     * Tries to delete the given key
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     */
     public function delete(string $key): void
     {
         if (!$this->exists($key)) {
@@ -34,6 +53,15 @@ final class RedisHelper
         $this->redis->del($key);
     }
 
+    /**
+     * Gets the type of the value, is one of Redis::REDIS_* constants
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     *
+     * @return int
+     */
     public function getType(string $key): int
     {
         if (!$this->exists($key)) {
@@ -43,6 +71,16 @@ final class RedisHelper
         return $this->redis->type($key);
     }
 
+    /**
+     * Fetches the value for given key as string
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return string
+     */
     public function getString(string $key): string
     {
         if (!$this->exists($key)) {
@@ -56,6 +94,17 @@ final class RedisHelper
         return $this->redis->get($key);
     }
 
+    /**
+     * Fetches the value as string and casts it to int
+     *
+     * @param string $key
+     *
+     * @throws InvalidTypeException
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return int
+     */
     public function getInt(string $key): int
     {
         $value = $this->getString($key);
@@ -70,6 +119,17 @@ final class RedisHelper
         return intval($value);
     }
 
+    /**
+     * Fetches the value as string and casts it to float
+     *
+     * @param string $key
+     *
+     * @throws InvalidTypeException
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return float
+     */
     public function getFloat(string $key): float
     {
         $value = $this->getString($key);
@@ -80,11 +140,31 @@ final class RedisHelper
         return floatval($value);
     }
 
+    /**
+     * Fetches the value as string and casts it to float
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return bool
+     */
     public function getBoolean(string $key): bool
     {
         return !!$this->getString($key);
     }
 
+    /**
+     * Fetches the value for given key as a hash
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return array
+     */
     public function getHash(string $key): array
     {
         if (!$this->exists($key)) {
@@ -98,6 +178,16 @@ final class RedisHelper
         return $this->redis->hGetAll($key);
     }
 
+    /**
+     * Fetches the value for given key as a list
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return array
+     */
     public function getList(string $key): array
     {
         if (!$this->exists($key)) {
@@ -117,6 +207,16 @@ final class RedisHelper
         return $result;
     }
 
+    /**
+     * Fetches the value for given key as a set
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return array
+     */
     public function getSet(string $key): array
     {
         if (!$this->exists($key)) {
@@ -130,6 +230,16 @@ final class RedisHelper
         return $this->redis->sMembers($key);
     }
 
+    /**
+     * Fetches the value for given key as a sorted set
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return array
+     */
     public function getSortedSet(string $key): array
     {
         if (!$this->exists($key)) {
@@ -143,6 +253,17 @@ final class RedisHelper
         return $this->redis->zRange($key, 0, -1);
     }
 
+    /**
+     * Fetches the value for given key as one of the types that can be converted to array (list, hash, set, sorted set).
+     * Automatically determines the correct type.
+     *
+     * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
+     * @throws RedisInvalidTypeException
+     *
+     * @return array
+     */
     public function getArray(string $key): array
     {
         if (!$this->exists($key)) {
@@ -164,7 +285,11 @@ final class RedisHelper
     }
 
     /**
+     * Fetches the value from redis, can be any of the supported types
+     *
      * @param string $key
+     *
+     * @throws RedisKeyNotFoundException
      *
      * @return array|string
      */
@@ -187,6 +312,14 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Sets the time-to-live for given key
+     *
+     * @param string $key
+     * @param int    $ttl
+     *
+     * @throws RedisKeyNotFoundException
+     */
     public function setTtl(string $key, int $ttl)
     {
         if (!$this->redis->exists($key)) {
@@ -196,6 +329,15 @@ final class RedisHelper
         $this->redis->expire($key, $ttl);
     }
 
+    /**
+     * Sets the value to the key as a string
+     *
+     * @param string   $key
+     * @param string   $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setString(string $key, string $value, ?int $ttl = null): void
     {
         if (!$this->redis->set($key, $value)) {
@@ -206,21 +348,57 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Sets the value to the key, in Redis stored as string
+     *
+     * @param string   $key
+     * @param int      $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setInt(string $key, int $value, ?int $ttl = null): void
     {
         $this->setString($key, strval($value), $ttl);
     }
 
+    /**
+     * Sets the value to the key, in Redis stored as string
+     *
+     * @param string   $key
+     * @param float    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setFloat(string $key, float $value, ?int $ttl = null): void
     {
         $this->setString($key, strval($value), $ttl);
     }
 
+    /**
+     * Sets the value to the key, in Redis stored as string, either '1' or '0'
+     *
+     * @param string   $key
+     * @param bool     $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setBoolean(string $key, bool $value, ?int $ttl = null): void
     {
         $this->setString($key, $value ? '1' : '0', $ttl);
     }
 
+    /**
+     * Stores the value to the key as a hash
+     *
+     * @param string   $key
+     * @param array    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setHash(string $key, array $value, ?int $ttl = null): void
     {
         if ($this->exists($key)) {
@@ -234,6 +412,15 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Stores the value to the key as a list (any keys in the array are discarded)
+     *
+     * @param string   $key
+     * @param array    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setList(string $key, array $value, ?int $ttl = null): void
     {
         if ($this->exists($key)) {
@@ -249,6 +436,15 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Stores the value to the key as a set (any keys in the array are discarded)
+     *
+     * @param string   $key
+     * @param array    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setSet(string $key, array $value, ?int $ttl = null): void
     {
         if ($this->exists($key)) {
@@ -264,6 +460,15 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Stores the value to the key as a sorted set (the array keys are converted to score)
+     *
+     * @param string   $key
+     * @param array    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setSortedSet(string $key, array $value, ?int $ttl = null): void
     {
         if ($this->exists($key)) {
@@ -282,6 +487,15 @@ final class RedisHelper
         }
     }
 
+    /**
+     * Stores the value for given key as a list or hash (if there are only ordered numeric keys list is used, otherwise hash)
+     *
+     * @param string   $key
+     * @param array    $value
+     * @param int|null $ttl
+     *
+     * @throws RedisException
+     */
     public function setArray(string $key, array $value, ?int $ttl = null): void
     {
         if ($this->exists($key)) {
@@ -317,6 +531,8 @@ final class RedisHelper
     }
 
     /**
+     * Sets the value for given key as any of the supported types (array, string, int, float, boolean)
+     *
      * @param string                      $key
      * @param array|string|int|float|bool $value
      * @param int|null                    $ttl
